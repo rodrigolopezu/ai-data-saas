@@ -1,7 +1,7 @@
 import io
-import pandas as pd
 from fastapi import APIRouter, HTTPException, UploadFile, File
 from ..schemas.models import SheetAnalysisResponse, AnalysisResponse, GraphicInstruction
+from ..services.file_processor import validate_sheets
 
 SUPPORTED_TYPES = {
     "text/csv": "csv",
@@ -26,8 +26,7 @@ async def analyze_sheet(file: UploadFile = File(...)):
         if file_type == "csv":
             return SheetAnalysisResponse(valid_sheets=["Data"])
         elif file_type in ("xlsx", "xls"):
-            excel_file = pd.ExcelFile(file_data)
-            return SheetAnalysisResponse(valid_sheets=excel_file.sheet_names)
+            return SheetAnalysisResponse(valid_sheets=validate_sheets(file_data))
 
     except HTTPException:
         raise
