@@ -28,3 +28,13 @@ def validate_sheets(file: io.BytesIO) -> list[str]:
 
 def extract_sheet(file: io.BytesIO, sheet: str) -> pd.DataFrame:
     return pd.read_excel(file, sheet_name=sheet)    
+
+def data_wrangling(file: io.BytesIO, sheet: str, ai_response: dict) -> pd.DataFrame:
+    headers = ai_response["headers"]
+    skip_rows = ai_response["skip_rows"]
+    skip_footer = ai_response["skip_footer"]
+    df = pd.read_excel(file, sheet_name=sheet, names=headers, skiprows=skip_rows, skipfooter=skip_footer, header=0)
+    return df
+
+def build_schema (df: pd.DataFrame) -> dict:
+    

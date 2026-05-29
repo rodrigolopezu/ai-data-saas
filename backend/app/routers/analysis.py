@@ -1,7 +1,7 @@
 import io
 from fastapi import APIRouter, HTTPException, UploadFile, File, Form
 from ..schemas.models import SheetAnalysisResponse, AnalysisResponse, GraphicInstruction
-from ..services.file_processor import validate_sheets, extract_sheet, validate_sheet, extract_sample
+from ..services.file_processor import validate_sheets, extract_sheet, validate_sheet, extract_sample, data_wrangling
 from ..services.ai_service import analyze_structure
 
 SUPPORTED_TYPES = {
@@ -47,7 +47,7 @@ async def analyze_data(file: UploadFile = File(...), sheet_name: str = Form(...)
 
         sample = extract_sample(file_data, sheet_name)
         structure = analyze_structure(sample)
-        return structure
+        clean_df = data_wrangling(file_data, sheet_name, structure)
 
     except HTTPException:
         raise
