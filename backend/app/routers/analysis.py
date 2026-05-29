@@ -1,7 +1,7 @@
 import io
-from fastapi import APIRouter, HTTPException, UploadFile, File
+from fastapi import APIRouter, HTTPException, UploadFile, File, Form
 from ..schemas.models import SheetAnalysisResponse, AnalysisResponse, GraphicInstruction
-from ..services.file_processor import validate_sheets
+from ..services.file_processor import validate_sheets, extract_sheet
 
 SUPPORTED_TYPES = {
     "text/csv": "csv",
@@ -32,3 +32,10 @@ async def analyze_sheet(file: UploadFile = File(...)):
         raise
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"File reading process failed: {str(e)}")
+
+@router.post("/analysis", response_model=AnalysisResponse)
+async def analyze_data(file: UploadFile = File(...), sheet_name: str = Form(...)):
+    try:
+        contents = await file.read()
+        file_data = io.BytesIO(contents)
+        df = extract_sheet(file_data, sheet_name)
