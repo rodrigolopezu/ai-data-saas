@@ -6,7 +6,6 @@ automáticamente un dashboard interactivo con gráficos e insights generados por
 ## Stack
 - **Frontend**: Next.js 14, shadcn/ui, Tailwind, Recharts
 - **Backend**: FastAPI, Pandas, Anthropic SDK
-- **Base de datos**: Supabase (PostgreSQL)
 - **Deploy**: Vercel (frontend) + Railway (backend)
 
 ## Desarrollo local
