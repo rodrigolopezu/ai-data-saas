@@ -1,7 +1,8 @@
 import io
 from fastapi import APIRouter, HTTPException, UploadFile, File, Form
 from ..schemas.models import SheetAnalysisResponse, AnalysisResponse, GraphicInstruction
-from ..services.file_processor import validate_sheets, extract_sheet
+from ..services.file_processor import validate_sheets, extract_sheet, validate_sheet, extract_sample
+from ..services.ai_service import analyze_structure
 
 SUPPORTED_TYPES = {
     "text/csv": "csv",
@@ -33,9 +34,22 @@ async def analyze_sheet(file: UploadFile = File(...)):
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"File reading process failed: {str(e)}")
 
+
 @router.post("/analysis", response_model=AnalysisResponse)
 async def analyze_data(file: UploadFile = File(...), sheet_name: str = Form(...)):
     try:
         contents = await file.read()
         file_data = io.BytesIO(contents)
         df = extract_sheet(file_data, sheet_name)
+
+        if not validate_sheet(df):
+            raise HTTPException(status_code=400, detail="Sheet is not valid for analysis")
+
+        sample = extract_sample(file_data, sheet_name)
+        structure = analyze_structure(sample)
+        return structure
+
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"File analysis process failed: {str(e)}")
